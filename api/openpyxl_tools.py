@@ -1,0 +1,51 @@
+# -*- coding:utf8 -*-
+"""
+Created on:
+@author: BoobooWei
+Email: rgweiyaping@hotmail.com
+Version: V.19.03.09.0
+Description:
+Help:
+"""
+
+from openpyxl import load_workbook
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+
+class GetMyExcel:
+    """
+    读取excel数据
+    """
+
+    def __init__(self, excel):
+        # read excel
+        self.wb = load_workbook(excel)
+        # get all sheet names
+        # [u'Sheet1', u'Sheet2', u'Sheet3'}
+        self.sheetnames = self.wb.sheetnames
+
+    def get_sheet_data(self):
+        lines = []
+        for sheetname in self.sheetnames:
+            sheet = self.wb.get_sheet_by_name(sheetname)
+            # get row num
+            row_num = sheet.max_row
+            # get column num
+            column_num = sheet.max_column
+            # 获取标题 title = ['a','b']
+            title = map(lambda x: x.value, sheet['1'])
+
+            # 获取数据
+            for row in range(2, row_num + 1):
+                lines.append(map(lambda x: x.value, sheet[row]))
+        return (title, lines)
+
+
+if __name__ == "__main__":
+    api = GetMyExcel('1.xlsx')
+    title, lines = api.get_sheet_data()
+    print title
+    print lines
