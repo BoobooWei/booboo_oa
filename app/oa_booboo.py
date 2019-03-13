@@ -44,19 +44,20 @@ class GetMyExcel:
         return (title, lines)
 
     def filter_column(self, title, lines, except_list):
-        for i in except_list:
-            del title[i]
-            for line in lines:
-                del line[i]
-        return (title, lines)
-
-
+        try:
+            _title = filter(lambda x: title.index(x) not in except_list, title)
+            _lines = map(lambda line: filter(lambda x: line.index(x) not in except_list, line), lines)
+        except Exception:
+            _title = []
+            _lines = []
+        return (_title, _lines)
 
 
 class CreateMyExcel:
     """
     创建excel表格
     """
+
     def __init__(self, excel):
         # Create an new Excel file.
         self.workbook = xlsxwriter.Workbook(excel)
@@ -81,16 +82,29 @@ class CreateMyExcel:
     def close_excel(self):
         self.workbook.close()
 
-if __name__ == "__main__":
+
+def starup(**parmas):
+    input_file = parmas["input"]
+    output_file = parmas["output"]
     # 将三个sheet合并成一个sheet,过滤需要的列，写入新文件
-    get_api = GetMyExcel('1.xlsx')
+    get_api = GetMyExcel(input_file)
     _title, _lines = get_api.get_sheet_data()
-    title, lines = get_api.filter_column(_title, _lines, [0,1])
-    api = CreateMyExcel('2.xlsx')
+
+    except_list = range(14)
+    title, lines = get_api.filter_column(_title, _lines, except_list)
+    api = CreateMyExcel(output_file)
     api.insert_data(api.create_new_sheet(), title, lines)
     api.close_excel()
 
 
-
-
-
+if __name__ == "__main__":
+    items = [
+        {"input": "20190313091400007.xlsx",
+         "output": "20190313091400007_end.xlsx"
+         },
+        {"input": "20190313091600016.xlsx",
+         "output": "20190313091600016_ing.xlsx"
+         },
+    ]
+    for params in items:
+        starup(**params)
